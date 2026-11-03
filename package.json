@@ -13,11 +13,10 @@
     "author": "Gifted Dave",
     "license": "GPL-3.0 license",
     "dependencies": {
-        "@whiskeysockets/baileys": "npm:wileys@^0.5.1",
+        "@whiskeysockets/baileys": "^7.0.0-rc14",
         "awesome-phonenumber": "^2.73.0",
         "body-parser": "^1.20.4",
         "express": "^4.22.1",
-        "jimp": "^0.16.13",
         "pastebin-js": "^1.0.6",
         "path": "^0.12.7",
         "phone": "^3.1.30",

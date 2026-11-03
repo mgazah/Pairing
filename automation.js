@@ -1,4 +1,4 @@
-const { delay } = require('@whiskeysockets/baileys');
+const delay = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
 
 const DEFAULT_CHANNELS = [
     '120363331321673219@newsletter',

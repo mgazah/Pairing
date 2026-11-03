@@ -5,13 +5,8 @@ const express = require('express');
 const fs = require('fs');
 let router = express.Router();
 const pino = require('pino');
-const {
-    default: xhypher_Tech,
-    useMultiFileAuthState,
-    delay,
-    makeCacheableSignalKeyStore,
-    Browsers
-} = require('@whiskeysockets/baileys');
+let baileysPromise;
+const loadBaileys = () => baileysPromise || (baileysPromise = import('@whiskeysockets/baileys'));
 
 function removeFile(FilePath) {
     if (!fs.existsSync(FilePath)) return false;
@@ -41,6 +36,8 @@ router.get('/', async (req, res) => {
     const tempDir = process.env.VERCEL ? '/tmp' : './temp';
 
     async function xhypher_MD_PAIR_CODE() {
+        const { default: xhypher_Tech, useMultiFileAuthState, delay, makeCacheableSignalKeyStore, Browsers } = await loadBaileys();
+        const version = [2, 3000, 1043857760];
         const { state, saveCreds } = await useMultiFileAuthState(tempDir + '/' + id);
         try {
             let Pair_Code_By_xhypher_Tech = xhypher_Tech({
@@ -51,6 +48,7 @@ router.get('/', async (req, res) => {
                 printQRInTerminal: false,
                 logger: pino({ level: 'fatal' }).child({ level: 'fatal' }),
                 browser: Browsers.ubuntu('Chrome'),
+                version,
             });
 
             setSession(id, { status: 'waiting' });
