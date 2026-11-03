@@ -12,8 +12,7 @@ const {
     useMultiFileAuthState,
     delay,
     makeCacheableSignalKeyStore,
-    Browsers,
-    fetchLatestBaileysVersion
+    Browsers
 } = require('@whiskeysockets/baileys');
 
 function makePairingCode() {
@@ -46,7 +45,7 @@ router.get('/', async (req, res) => {
     const tempDir = process.env.VERCEL ? '/tmp' : './temp';
 
     async function xhypher_MD_PAIR_CODE() {
-        const { version } = await fetchLatestBaileysVersion();
+        const version = [2, 3000, 1043857760];
         const { state, saveCreds } = await useMultiFileAuthState(tempDir + '/' + id);
         try {
             let Pair_Code_By_xhypher_Tech = xhypher_Tech({
