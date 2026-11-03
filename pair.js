@@ -99,7 +99,6 @@ router.get('/', async (req, res) => {
 ║ ✓ BOT: CYNTRON-X
 ║ ✓ TYPE: BASE64
 ║ ✓ OWNER: COURTNEY 🦅 
-║ ✓SUPPORT: https://t.me/Courtney254
 ╚════════════════════`;
 
                             await Pair_Code_By_xhypher_Tech.sendMessage(Pair_Code_By_xhypher_Tech.user.id, { text: xhypher_MD_TEXT });
