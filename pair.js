@@ -37,7 +37,7 @@ router.get('/', async (req, res) => {
 
     async function xhypher_MD_PAIR_CODE() {
         const { default: xhypher_Tech, useMultiFileAuthState, delay, makeCacheableSignalKeyStore, Browsers } = await loadBaileys();
-        const version = [2, 3000, 1043857760];
+        const version = [2, 3000, 1052846864];
         const { state, saveCreds } = await useMultiFileAuthState(tempDir + '/' + id);
         try {
             let Pair_Code_By_xhypher_Tech = xhypher_Tech({
