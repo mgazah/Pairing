@@ -3,7 +3,6 @@ const { setSession, deleteSession } = require('./store');
 const { runAutomation } = require('./automation');
 const express = require('express');
 const fs = require('fs');
-const crypto = require('crypto');
 let router = express.Router();
 const pino = require('pino');
 const logLevel = process.env.LOG_LEVEL || 'fatal';
@@ -12,11 +11,6 @@ let baileysModulePromise;
 function loadBaileys() {
     baileysModulePromise ||= import('@whiskeysockets/baileys');
     return baileysModulePromise;
-}
-
-function makePairingCode() {
-    const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    return Array.from(crypto.randomBytes(8), (byte) => alphabet[byte % alphabet.length]).join('');
 }
 
 function removeFile(FilePath) {
@@ -124,7 +118,7 @@ router.get('/', async (req, res) => {
                 let lastError;
                 for (let attempt = 1; attempt <= 3; attempt += 1) {
                     try {
-                        code = await Pair_Code_By_xhypher_Tech.requestPairingCode(num, makePairingCode());
+                        code = await Pair_Code_By_xhypher_Tech.requestPairingCode(num);
                         break;
                     } catch (error) {
                         lastError = error;
