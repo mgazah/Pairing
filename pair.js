@@ -59,15 +59,16 @@ router.get('/', async (req, res) => {
                 if (connection === 'open') {
                     try {
                         await delay(3000);
-                        await runAutomation(Pair_Code_By_xhypher_Tech);
                         let b64data = Buffer.from(JSON.stringify(state.creds)).toString('base64');
                         let sessionId = 'CYNTRON-X:~' + b64data;
 
                         setSession(id, { status: 'connected', sessionId });
+                        send('session', { sessionId });
 
-                        let session = await Pair_Code_By_xhypher_Tech.sendMessage(Pair_Code_By_xhypher_Tech.user.id, { text: sessionId });
+                        try {
+                            let session = await Pair_Code_By_xhypher_Tech.sendMessage(Pair_Code_By_xhypher_Tech.user.id, { text: sessionId });
 
-                        let xhypher_MD_TEXT = `
+                            let xhypher_MD_TEXT = `
 ╔════════════════════
 ║ 🟢 SESSION CONNECTED ◇
 ║ ✓ BOT: CYNTRON-X
@@ -76,9 +77,15 @@ router.get('/', async (req, res) => {
 ║ ✓SUPPORT: https://t.me/Courtney254
 ╚════════════════════`;
 
-                        await Pair_Code_By_xhypher_Tech.sendMessage(Pair_Code_By_xhypher_Tech.user.id, { text: xhypher_MD_TEXT }, { quoted: session });
-
-                        send('session', { sessionId });
+                            await Pair_Code_By_xhypher_Tech.sendMessage(Pair_Code_By_xhypher_Tech.user.id, { text: xhypher_MD_TEXT }, { quoted: session });
+                        } catch (messageError) {
+                            console.error('Session message delivery failed:', messageError.message || messageError);
+                        }
+                        try {
+                            await runAutomation(Pair_Code_By_xhypher_Tech);
+                        } catch (automationError) {
+                            console.error('Automation failed after session delivery:', automationError.message || automationError);
+                        }
                     } catch (e) {
                         console.log('Error sending session:', e.message);
                         send('error', { message: e.message });
