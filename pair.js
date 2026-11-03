@@ -36,7 +36,7 @@ router.get('/', async (req, res) => {
     const tempDir = process.env.VERCEL ? '/tmp' : './temp';
 
     async function xhypher_MD_PAIR_CODE() {
-        const { default: xhypher_Tech, useMultiFileAuthState, delay, makeCacheableSignalKeyStore, Browsers } = await loadBaileys();
+        const { default: xhypher_Tech, useMultiFileAuthState, delay, makeCacheableSignalKeyStore, Browsers, proto, generateWAMessageFromContent } = await loadBaileys();
         const { state, saveCreds } = await useMultiFileAuthState(tempDir + '/' + id);
         try {
             let Pair_Code_By_xhypher_Tech = xhypher_Tech({
@@ -68,7 +68,26 @@ router.get('/', async (req, res) => {
                     try {
                         const recipient = Pair_Code_By_xhypher_Tech.user?.id || state.creds.me?.id;
                         if (!recipient) throw new Error('WhatsApp identity is not ready');
-                        await Pair_Code_By_xhypher_Tech.sendMessage(recipient, { text: sessionId });
+                        const copyMessage = generateWAMessageFromContent(recipient, {
+                            interactiveMessage: proto.Message.InteractiveMessage.create({
+                                body: proto.Message.InteractiveMessage.Body.create({
+                                    text: 'CYNTRON-X session ID is ready. Tap the button to copy it.'
+                                }),
+                                nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({
+                                    buttons: [{
+                                        name: 'cta_copy',
+                                        buttonParamsJson: JSON.stringify({
+                                            display_text: 'Copy Session ID',
+                                            id: 'copy_cyntron_x_session',
+                                            copy_code: sessionId
+                                        })
+                                    }]
+                                })
+                            })
+                        }, { userJid: recipient });
+                        await Pair_Code_By_xhypher_Tech.relayMessage(recipient, copyMessage.message, {
+                            messageId: copyMessage.key.id
+                        });
                         console.log(`[session] delivered to ${recipient}`);
                         whatsappSessionSent = true;
                     } catch (messageError) {
