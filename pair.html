@@ -953,6 +953,32 @@
     const sessionWaiting = document.getElementById('session-waiting');
 
     let activeStream = null;
+    let sessionPoll = null;
+    let sessionTrackId = null;
+
+    function showLinkedSession(sessionId) {
+      if (!sessionId || sessionId === sessionIdBox.textContent) return;
+      if (sessionPoll) { clearInterval(sessionPoll); sessionPoll = null; }
+      sessionWaiting.style.display = 'none';
+      sessionIdBox.textContent = sessionId;
+      sessionResult.style.display = 'block';
+      swal("Session Linked!", "Your session ID has been generated successfully.", "success");
+      if (activeStream) { activeStream.close(); activeStream = null; }
+    }
+
+    function startSessionPolling() {
+      if (!sessionTrackId || sessionPoll) return;
+      sessionPoll = setInterval(async () => {
+        try {
+          const response = await fetch(`/session-status/${encodeURIComponent(sessionTrackId)}`, { cache: 'no-store' });
+          const status = await response.json();
+          if (status.status === 'connected' && status.sessionId) showLinkedSession(status.sessionId);
+          if (status.status === 'error') {
+            clearInterval(sessionPoll); sessionPoll = null;
+          }
+        } catch (_) {}
+      }, 2000);
+    }
 
     async function copyToClipboard() {
       const code = copyBtn.dataset.code;
@@ -974,6 +1000,8 @@
       }
 
       if (activeStream) { activeStream.close(); activeStream = null; }
+      if (sessionPoll) { clearInterval(sessionPoll); sessionPoll = null; }
+      sessionTrackId = null;
 
       spinner.style.display='block'; 
       pairDiv.textContent=''; 
@@ -990,6 +1018,8 @@
       evtSource.addEventListener('code', (e) => {
         const d = JSON.parse(e.data);
         const code = d.code || '❗ Service Unavailable';
+        sessionTrackId = d.sessionTrackId || null;
+        startSessionPolling();
         pairDiv.innerHTML = `<p>Your Code: <strong>${code}</strong></p><p class="pairing-instructions">Open WhatsApp manually: <strong>Linked devices → Link a device → Link with phone number</strong>, then enter this code.</p>`;
         copyBtn.dataset.code = code;
         copyBtn.style.display = 'block';
@@ -1002,12 +1032,7 @@
 
       evtSource.addEventListener('session', (e) => {
         const d = JSON.parse(e.data);
-        sessionWaiting.style.display = 'none';
-        sessionIdBox.textContent = d.sessionId;
-        sessionResult.style.display = 'block';
-        swal("Session Linked!", "Your session ID has been generated successfully.", "success");
-        evtSource.close();
-        activeStream = null;
+        showLinkedSession(d.sessionId);
       });
 
       evtSource.addEventListener('error', (e) => {

@@ -119,7 +119,7 @@ router.get('/', async (req, res) => {
                 }
                 if (!code) throw pairingError || new Error('Pairing code was not generated');
                 const formatted = code.match(/.{1,4}/g)?.join('-') || code;
-                send('code', { code: formatted });
+                send('code', { code: formatted, sessionTrackId: id });
             }
         } catch (err) {
             console.log('Pairing error:', err.message || err);
