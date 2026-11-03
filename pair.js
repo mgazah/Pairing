@@ -30,6 +30,9 @@ router.get('/', async (req, res) => {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
     res.flushHeaders();
+    const keepAlive = setInterval(() => {
+        if (!res.writableEnded) res.write(': pairing-wait\n\n');
+    }, 15000);
 
     const send = (event, data) => {
         res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
@@ -87,8 +90,8 @@ router.get('/', async (req, res) => {
                     setTimeout(() => { deleteSession(id); }, 300000);
 
                     await delay(100);
+                    clearInterval(keepAlive);
                     res.end();
-                    await Pair_Code_By_xhypher_Tech.ws.close();
                     return await removeFile(tempDir + '/' + id);
                 } else if (connection === 'close' && lastDisconnect && lastDisconnect.error && lastDisconnect.error.output && lastDisconnect.error.output.statusCode != 401) {
                     await delay(10000);
@@ -105,6 +108,7 @@ router.get('/', async (req, res) => {
             }
         } catch (err) {
             console.log('Pairing error:', err.message || err);
+            clearInterval(keepAlive);
             await removeFile(tempDir + '/' + id);
             send('error', { message: 'Service Currently Unavailable' });
             res.end();
