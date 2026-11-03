@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: techword-bot-pair
+    name: cyntron-x-pair
     runtime: node
     buildCommand: npm install
     startCommand: node index.js
