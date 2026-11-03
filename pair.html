@@ -990,8 +990,7 @@
       evtSource.addEventListener('code', (e) => {
         const d = JSON.parse(e.data);
         const code = d.code || '❗ Service Unavailable';
-        const waLink = `https://wa.me/${num}?text=${encodeURIComponent(code)}`;
-        pairDiv.innerHTML = `<p>Your Code: <strong>${code}</strong></p><p><a href="${waLink}" target="_blank" style="color:var(--accent);">Open WhatsApp Link</a></p>`;
+        pairDiv.innerHTML = `<p>Your Code: <strong>${code}</strong></p><p class="pairing-instructions">Open WhatsApp manually: <strong>Linked devices → Link a device → Link with phone number</strong>, then enter this code.</p>`;
         copyBtn.dataset.code = code;
         copyBtn.style.display = 'block';
         valBtn.style.display = 'block';
