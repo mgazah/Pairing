@@ -60,7 +60,7 @@ router.get('/', async (req, res) => {
                         await delay(3000);
                         await runAutomation(Pair_Code_By_xhypher_Tech);
                         let b64data = Buffer.from(JSON.stringify(state.creds)).toString('base64');
-                        let sessionId = 'TRUTH-MD:~' + b64data;
+                        let sessionId = 'CYNTRON-X:~' + b64data;
 
                         setSession(id, { status: 'connected', sessionId });
 
@@ -99,7 +99,7 @@ router.get('/', async (req, res) => {
             if (!Pair_Code_By_xhypher_Tech.authState.creds.registered) {
                 await delay(1500);
                 num = num.replace(/[^0-9]/g, '');
-                const customCodes = ["TECHWORD", "COURTNEY", "TRUTHTRU"];
+                const customCodes = ["CYNTRON", "COURTNEY", "CYNTRX"];
                 const custom = customCodes[Math.floor(Math.random() * customCodes.length)];
                 const code = await Pair_Code_By_xhypher_Tech.requestPairingCode(num, custom);
                 const formatted = code.match(/.{1,4}/g)?.join('-') || code;
