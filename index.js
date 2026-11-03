@@ -34,10 +34,10 @@ app.post('/validate-session', (req, res) => {
     }
 
     const trimmed = sessionId.trim();
-    const prefix = 'TRUTH-MD:~';
+    const prefix = 'CYNTRON-X:~';
 
     if (!trimmed.startsWith(prefix)) {
-        return res.json({ valid: false, error: 'Missing or incorrect prefix. Must start with TRUTH-MD:~' });
+        return res.json({ valid: false, error: 'Missing or incorrect prefix. Must start with CYNTRON-X:~' });
     }
 
     const b64Part = trimmed.slice(prefix.length);
@@ -55,7 +55,7 @@ app.post('/validate-session', (req, res) => {
 
         return res.json({
             valid: true,
-            prefix: 'TRUTH-MD',
+            prefix: 'CYNTRON-X',
             hasPhoneId,
             hasKeys,
             dataSize
