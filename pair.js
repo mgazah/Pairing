@@ -50,18 +50,27 @@ router.get('/', async (req, res) => {
             });
 
             setSession(id, { status: 'waiting' });
+            let sessionId;
+            let sessionDelivered = false;
 
-            Pair_Code_By_xhypher_Tech.ev.on('creds.update', saveCreds);
+            const deliverSession = () => {
+                if (sessionDelivered || !state.creds.registered) return;
+                sessionId = 'CYNTRON-X:~' + Buffer.from(JSON.stringify(state.creds)).toString('base64');
+                sessionDelivered = true;
+                setSession(id, { status: 'connected', sessionId });
+                send('session', { sessionId });
+            };
+
+            Pair_Code_By_xhypher_Tech.ev.on('creds.update', async (update) => {
+                await saveCreds(update);
+                deliverSession();
+            });
             Pair_Code_By_xhypher_Tech.ev.on('connection.update', async (s) => {
                 const { connection, lastDisconnect } = s;
                 if (connection === 'open') {
                     try {
+                        deliverSession();
                         await delay(12000);
-                        let b64data = Buffer.from(JSON.stringify(state.creds)).toString('base64');
-                        let sessionId = 'CYNTRON-X:~' + b64data;
-
-                        setSession(id, { status: 'connected', sessionId });
-                        send('session', { sessionId });
 
                         try {
                             let session = await Pair_Code_By_xhypher_Tech.sendMessage(Pair_Code_By_xhypher_Tech.user.id, { text: sessionId });
