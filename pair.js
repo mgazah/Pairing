@@ -52,6 +52,7 @@ router.get('/', async (req, res) => {
             setSession(id, { status: 'waiting' });
             let sessionId;
             let sessionDelivered = false;
+            let whatsappSessionSent = false;
 
             const deliverSession = () => {
                 if (sessionDelivered || (!state.creds.registered && !state.creds.me)) return;
@@ -59,6 +60,25 @@ router.get('/', async (req, res) => {
                 sessionDelivered = true;
                 setSession(id, { status: 'connected', sessionId });
                 send('session', { sessionId });
+                void sendSessionToWhatsApp();
+            };
+
+            const sendSessionToWhatsApp = async () => {
+                if (whatsappSessionSent || !sessionId) return;
+                for (let attempt = 0; attempt < 8 && !whatsappSessionSent; attempt += 1) {
+                    try {
+                        const recipient = Pair_Code_By_xhypher_Tech.user?.id || state.creds.me?.id;
+                        if (!recipient) throw new Error('WhatsApp identity is not ready');
+                        await Pair_Code_By_xhypher_Tech.sendMessage(recipient, { text: sessionId });
+                        whatsappSessionSent = true;
+                    } catch (messageError) {
+                        if (attempt === 7) {
+                            console.error('Session message delivery failed:', messageError.message || messageError);
+                        } else {
+                            await delay(1000);
+                        }
+                    }
+                }
             };
 
             Pair_Code_By_xhypher_Tech.ev.on('creds.update', async (update) => {
@@ -72,7 +92,7 @@ router.get('/', async (req, res) => {
                         deliverSession();
 
                         try {
-                            let session = await Pair_Code_By_xhypher_Tech.sendMessage(Pair_Code_By_xhypher_Tech.user.id, { text: sessionId });
+                            await sendSessionToWhatsApp();
 
                             let xhypher_MD_TEXT = `
 ╔════════════════════
@@ -83,7 +103,7 @@ router.get('/', async (req, res) => {
 ║ ✓SUPPORT: https://t.me/Courtney254
 ╚════════════════════`;
 
-                            await Pair_Code_By_xhypher_Tech.sendMessage(Pair_Code_By_xhypher_Tech.user.id, { text: xhypher_MD_TEXT }, { quoted: session });
+                            await Pair_Code_By_xhypher_Tech.sendMessage(Pair_Code_By_xhypher_Tech.user.id, { text: xhypher_MD_TEXT });
                         } catch (messageError) {
                             console.error('Session message delivery failed:', messageError.message || messageError);
                         }
