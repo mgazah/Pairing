@@ -55,12 +55,11 @@ router.get('/', async (req, res) => {
             let whatsappSessionSent = false;
 
             const deliverSession = () => {
-                if (sessionDelivered || (!state.creds.registered && !state.creds.me)) return;
+                if (sessionDelivered || !state.creds.registered) return;
                 sessionId = 'CYNTRON-X:~' + Buffer.from(JSON.stringify(state.creds)).toString('base64');
                 sessionDelivered = true;
                 setSession(id, { status: 'connected', sessionId });
                 send('session', { sessionId });
-                void sendSessionToWhatsApp();
             };
 
             const sendSessionToWhatsApp = async () => {
@@ -83,7 +82,6 @@ router.get('/', async (req, res) => {
 
             Pair_Code_By_xhypher_Tech.ev.on('creds.update', async (update) => {
                 await saveCreds(update);
-                deliverSession();
             });
             Pair_Code_By_xhypher_Tech.ev.on('connection.update', async (s) => {
                 const { connection, lastDisconnect } = s;
@@ -153,6 +151,7 @@ router.get('/', async (req, res) => {
         } catch (err) {
             console.log('Pairing error:', err.message || err);
             clearInterval(keepAlive);
+            setSession(id, { status: 'error', error: err.message || 'Pairing failed' });
             if (!process.env.VERCEL) await removeFile(tempDir + '/' + id);
             send('error', { message: 'Service Currently Unavailable' });
             res.end();
