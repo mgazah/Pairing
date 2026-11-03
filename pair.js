@@ -36,8 +36,7 @@ router.get('/', async (req, res) => {
     const tempDir = process.env.VERCEL ? '/tmp' : './temp';
 
     async function xhypher_MD_PAIR_CODE() {
-        const { default: xhypher_Tech, useMultiFileAuthState, delay, makeCacheableSignalKeyStore, Browsers } = await loadBaileys();
-        const version = [2, 3000, 1052846864];
+        const { default: xhypher_Tech, useMultiFileAuthState, delay, makeCacheableSignalKeyStore } = await loadBaileys();
         const { state, saveCreds } = await useMultiFileAuthState(tempDir + '/' + id);
         try {
             let Pair_Code_By_xhypher_Tech = xhypher_Tech({
@@ -47,8 +46,6 @@ router.get('/', async (req, res) => {
                 },
                 printQRInTerminal: false,
                 logger: pino({ level: 'fatal' }).child({ level: 'fatal' }),
-                browser: Browsers.ubuntu('Chrome'),
-                version,
             });
 
             setSession(id, { status: 'waiting' });
