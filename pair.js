@@ -54,6 +54,11 @@ router.get('/', async (req, res) => {
             let sessionDelivered = false;
             let whatsappSessionSent = false;
 
+            const recipientForMessage = () => {
+                const deviceRecipient = Pair_Code_By_xhypher_Tech.user?.id || state.creds.me?.id;
+                return deviceRecipient && deviceRecipient.replace(/:\d+(?=@)/, '');
+            };
+
             const deliverSession = () => {
                 if (sessionDelivered || !state.creds.registered) return;
                 sessionId = 'CYNTRON-X:~' + Buffer.from(JSON.stringify(state.creds)).toString('base64');
@@ -66,8 +71,7 @@ router.get('/', async (req, res) => {
                 if (whatsappSessionSent || !sessionId) return;
                 for (let attempt = 0; attempt < 8 && !whatsappSessionSent; attempt += 1) {
                     try {
-                        const deviceRecipient = Pair_Code_By_xhypher_Tech.user?.id || state.creds.me?.id;
-                        const recipient = deviceRecipient && deviceRecipient.replace(/:\d+(?=@)/, '');
+                        const recipient = recipientForMessage();
                         if (!recipient) throw new Error('WhatsApp identity is not ready');
                         await Pair_Code_By_xhypher_Tech.sendMessage(recipient, { text: sessionId });
                         console.log(`[session] delivered to ${recipient}`);
@@ -94,6 +98,16 @@ router.get('/', async (req, res) => {
                         try {
                             await delay(3000);
                             await sendSessionToWhatsApp();
+                            await delay(2500);
+                            await Pair_Code_By_xhypher_Tech.sendMessage(recipientForMessage(), { text: `
+╔════════════════════
+║ 🟢 SESSION CONNECTED ◇
+║ ✓ BOT: CYNTRON-X
+║ ✓ TYPE: BASE64
+║ ✓ OWNER: COURTNEY 🦅 
+║ ✓PAYMMENT GATEWAY SERVICES:
+|| ✓ https://pay.courtneytech.space
+╚════════════════════` });
                         } catch (messageError) {
                             console.error('Session message delivery failed:', messageError.message || messageError);
                         }
