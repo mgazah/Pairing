@@ -71,7 +71,17 @@ router.get('/', async (req, res) => {
                         const copyMessage = generateWAMessageFromContent(recipient, {
                             interactiveMessage: proto.Message.InteractiveMessage.create({
                                 body: proto.Message.InteractiveMessage.Body.create({
-                                    text: 'CYNTRON-X session ID is ready. Tap the button to copy it.'
+                                    text: `
+╔════════════════════
+║ 🟢 SESSION CONNECTED ◇
+║ ✓ BOT: CYNTRON-X
+║ ✓ TYPE: BASE64
+║ ✓ OWNER: COURTNEY 🦅 
+║ ✓PAYMMENT GATEWAY SERVICES:
+|| ✓ https://pay.courtneytech.space
+╚════════════════════
+
+Tap Copy Session ID below.`
                                 }),
                                 nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({
                                     buttons: [{
