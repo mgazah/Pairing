@@ -93,19 +93,6 @@ router.get('/', async (req, res) => {
                         try {
                             await delay(3000);
                             await sendSessionToWhatsApp();
-                            await delay(2500);
-
-                            let xhypher_MD_TEXT = `
-╔════════════════════
-║ 🟢 SESSION CONNECTED ◇
-║ ✓ BOT: CYNTRON-X
-║ ✓ TYPE: BASE64
-║ ✓ OWNER: COURTNEY 🦅 
-║ ✓ PAYMENT GATEWAY SERVICES:
-║ ✓ https://pay.courtneytech.space
-╚════════════════════`;
-
-                            await Pair_Code_By_xhypher_Tech.sendMessage(Pair_Code_By_xhypher_Tech.user.id, { text: xhypher_MD_TEXT });
                         } catch (messageError) {
                             console.error('Session message delivery failed:', messageError.message || messageError);
                         }
