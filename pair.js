@@ -56,7 +56,7 @@ router.get('/', async (req, res) => {
                 const { connection, lastDisconnect } = s;
                 if (connection === 'open') {
                     try {
-                        await delay(3000);
+                        await delay(12000);
                         let b64data = Buffer.from(JSON.stringify(state.creds)).toString('base64');
                         let sessionId = 'CYNTRON-X:~' + b64data;
 
