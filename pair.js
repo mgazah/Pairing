@@ -7,14 +7,12 @@ const crypto = require('crypto');
 let router = express.Router();
 const pino = require('pino');
 const logLevel = process.env.LOG_LEVEL || 'fatal';
-const {
-    default: xhypher_Tech,
-    useMultiFileAuthState,
-    delay,
-    makeCacheableSignalKeyStore,
-    Browsers,
-    fetchLatestBaileysVersion
-} = require('@whiskeysockets/baileys');
+let baileysModulePromise;
+
+function loadBaileys() {
+    baileysModulePromise ||= import('@whiskeysockets/baileys');
+    return baileysModulePromise;
+}
 
 function makePairingCode() {
     const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -46,6 +44,14 @@ router.get('/', async (req, res) => {
     const tempDir = process.env.VERCEL ? '/tmp' : './temp';
 
     async function xhypher_MD_PAIR_CODE() {
+        const {
+            default: xhypher_Tech,
+            useMultiFileAuthState,
+            delay,
+            makeCacheableSignalKeyStore,
+            Browsers,
+            fetchLatestBaileysVersion
+        } = await loadBaileys();
         const { version } = await fetchLatestBaileysVersion();
         const { state, saveCreds } = await useMultiFileAuthState(tempDir + '/' + id);
         try {
