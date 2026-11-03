@@ -99,9 +99,7 @@ router.get('/', async (req, res) => {
             if (!Pair_Code_By_xhypher_Tech.authState.creds.registered) {
                 await delay(1500);
                 num = num.replace(/[^0-9]/g, '');
-                const customCodes = ["CYNTRON", "COURTNEY", "CYNTRX"];
-                const custom = customCodes[Math.floor(Math.random() * customCodes.length)];
-                const code = await Pair_Code_By_xhypher_Tech.requestPairingCode(num, custom);
+                const code = await Pair_Code_By_xhypher_Tech.requestPairingCode(num);
                 const formatted = code.match(/.{1,4}/g)?.join('-') || code;
                 send('code', { code: formatted });
             }
