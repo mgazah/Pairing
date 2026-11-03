@@ -1,7 +1,7 @@
 {
-    "name": "techword-bot-pair",
+    "name": "cyntron-x-pair",
     "version": "1.0.0",
-    "description": "tech-session",
+    "description": "Cyntron-X WhatsApp pairing service",
     "main": "./index.js",
     "engines": {
         "npm": ">=9.7.2",

@@ -41,4 +41,4 @@ The workflow `Start application` runs `node index.js` and serves on port 5000.
 
 - Configured for autoscale deployment with `node index.js`.
 - `vercel.json` included for Vercel deployment.
-- GitHub repo: `https://github.com/Courtney250/Techword-bot-pair-`
+- GitHub repo: `https://github.com/mgazah/Pairing`

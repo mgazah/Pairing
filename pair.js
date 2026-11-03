@@ -69,7 +69,7 @@ router.get('/', async (req, res) => {
                         let xhypher_MD_TEXT = `
 ╔════════════════════
 ║ 🟢 SESSION CONNECTED ◇
-║ ✓ BOT: TECHWORD-X
+║ ✓ BOT: CYNTRON-X
 ║ ✓ TYPE: BASE64
 ║ ✓ OWNER: COURTNEY 🦅 
 ║ ✓SUPPORT: https://t.me/Courtney254
