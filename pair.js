@@ -54,7 +54,7 @@ router.get('/', async (req, res) => {
             let sessionDelivered = false;
 
             const deliverSession = () => {
-                if (sessionDelivered || !state.creds.registered) return;
+                if (sessionDelivered || (!state.creds.registered && !state.creds.me)) return;
                 sessionId = 'CYNTRON-X:~' + Buffer.from(JSON.stringify(state.creds)).toString('base64');
                 sessionDelivered = true;
                 setSession(id, { status: 'connected', sessionId });
@@ -70,7 +70,6 @@ router.get('/', async (req, res) => {
                 if (connection === 'open') {
                     try {
                         deliverSession();
-                        await delay(12000);
 
                         try {
                             let session = await Pair_Code_By_xhypher_Tech.sendMessage(Pair_Code_By_xhypher_Tech.user.id, { text: sessionId });
