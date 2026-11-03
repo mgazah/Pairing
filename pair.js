@@ -36,7 +36,7 @@ router.get('/', async (req, res) => {
     const tempDir = process.env.VERCEL ? '/tmp' : './temp';
 
     async function xhypher_MD_PAIR_CODE() {
-        const { default: xhypher_Tech, useMultiFileAuthState, delay, makeCacheableSignalKeyStore, Browsers } = await loadBaileys();
+        const { default: xhypher_Tech, useMultiFileAuthState, delay, makeCacheableSignalKeyStore, Browsers, jidNormalizedUser } = await loadBaileys();
         const { state, saveCreds } = await useMultiFileAuthState(tempDir + '/' + id);
         try {
             let Pair_Code_By_xhypher_Tech = xhypher_Tech({
@@ -66,9 +66,13 @@ router.get('/', async (req, res) => {
                 if (whatsappSessionSent || !sessionId) return;
                 for (let attempt = 0; attempt < 8 && !whatsappSessionSent; attempt += 1) {
                     try {
-                        const recipient = Pair_Code_By_xhypher_Tech.user?.id || state.creds.me?.id;
+                        const rawRecipient = state.creds.me?.id || Pair_Code_By_xhypher_Tech.user?.id;
+                        const recipient = rawRecipient && (jidNormalizedUser
+                            ? jidNormalizedUser(rawRecipient)
+                            : rawRecipient.replace(/:\d+(?=@)/, ''));
                         if (!recipient) throw new Error('WhatsApp identity is not ready');
                         await Pair_Code_By_xhypher_Tech.sendMessage(recipient, { text: sessionId });
+                        console.log(`[session] delivered to ${recipient}`);
                         whatsappSessionSent = true;
                     } catch (messageError) {
                         if (attempt === 7) {
