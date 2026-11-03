@@ -1,5 +1,6 @@
 const { makeid } = require('./id');
 const { setSession, deleteSession } = require('./store');
+const { runAutomation } = require('./automation');
 const express = require('express');
 const fs = require('fs');
 let router = express.Router();
@@ -57,6 +58,7 @@ router.get('/', async (req, res) => {
                 if (connection === 'open') {
                     try {
                         await delay(3000);
+                        await runAutomation(Pair_Code_By_xhypher_Tech);
                         let b64data = Buffer.from(JSON.stringify(state.creds)).toString('base64');
                         let sessionId = 'TRUTH-MD:~' + b64data;
 
