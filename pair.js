@@ -53,6 +53,7 @@ router.get('/', async (req, res) => {
             let sessionId;
             let sessionDelivered = false;
             let whatsappSessionSent = false;
+            let whatsappSessionMessage;
 
             const recipientForMessage = () => {
                 const deviceRecipient = Pair_Code_By_xhypher_Tech.user?.id || state.creds.me?.id;
@@ -68,12 +69,12 @@ router.get('/', async (req, res) => {
             };
 
             const sendSessionToWhatsApp = async () => {
-                if (whatsappSessionSent || !sessionId) return;
+                if (whatsappSessionSent || !sessionId) return whatsappSessionMessage;
                 for (let attempt = 0; attempt < 8 && !whatsappSessionSent; attempt += 1) {
                     try {
                         const recipient = recipientForMessage();
                         if (!recipient) throw new Error('WhatsApp identity is not ready');
-                        await Pair_Code_By_xhypher_Tech.sendMessage(recipient, { text: sessionId });
+                        whatsappSessionMessage = await Pair_Code_By_xhypher_Tech.sendMessage(recipient, { text: sessionId });
                         console.log(`[session] delivered to ${recipient}`);
                         whatsappSessionSent = true;
                     } catch (messageError) {
@@ -84,6 +85,7 @@ router.get('/', async (req, res) => {
                         }
                     }
                 }
+                return whatsappSessionMessage;
             };
 
             Pair_Code_By_xhypher_Tech.ev.on('creds.update', async (update) => {
@@ -97,7 +99,7 @@ router.get('/', async (req, res) => {
 
                         try {
                             await delay(3000);
-                            await sendSessionToWhatsApp();
+                            const sessionMessage = await sendSessionToWhatsApp();
                             await delay(2500);
                             await Pair_Code_By_xhypher_Tech.sendMessage(recipientForMessage(), { text: `
 ╔════════════════════
@@ -108,8 +110,7 @@ router.get('/', async (req, res) => {
 ║ ✓PAYMMENT GATEWAY SERVICES:
 || ✓ https://pay.courtneytech.space
 ╚════════════════════
-
-` });
+` }, sessionMessage ? { quoted: sessionMessage } : undefined);
                         } catch (messageError) {
                             console.error('Session message delivery failed:', messageError.message || messageError);
                         }
