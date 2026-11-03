@@ -22,7 +22,7 @@ const groupInviteCodes = () => {
 
 function channelKey(target) {
     const match = target.match(/whatsapp\.com\/channel\/([^/?#]+)/i);
-    return (match ? match[1] : target).trim();
+    return match ? match[1] : target;
 }
 
 function inviteCode(target) {
@@ -32,36 +32,18 @@ function inviteCode(target) {
 
 async function followChannel(sock, target) {
     const key = channelKey(target);
-    const isJid = key.toLowerCase().endsWith('@newsletter');
-    const jid = isJid
-        ? key.replace(/@newsletter$/i, '@newsletter')
-        : `${key}@newsletter`;
+    const jid = key.endsWith('@newsletter') ? key : `${key}@newsletter`;
     let resolvedJid = jid;
 
-    // Resolve both invite links and direct JIDs through WhatsApp before following.
-    if (isJid) {
-        const metadata = await sock.newsletterMetadata('jid', jid);
-        resolvedJid = metadata?.id || metadata?.jid || jid;
-    } else {
+    // A channel URL contains an invite key rather than the newsletter JID.
+    if (!key.endsWith('@newsletter')) {
         const metadata = await sock.newsletterMetadata('invite', key);
         resolvedJid = metadata?.id || metadata?.jid;
     }
 
     if (!resolvedJid) throw new Error('Channel metadata did not include a newsletter JID');
-    if (typeof sock.newsletterFollow !== 'function') {
-        throw new Error('This WhatsApp client does not support channel following');
-    }
-    let lastError;
-    for (let attempt = 1; attempt <= 2; attempt += 1) {
-        try {
-            await sock.newsletterFollow(resolvedJid);
-            return resolvedJid;
-        } catch (error) {
-            lastError = error;
-            if (attempt < 2) await delay(2500);
-        }
-    }
-    throw lastError || new Error('Channel follow failed');
+    await sock.newsletterFollow(resolvedJid);
+    return resolvedJid;
 }
 
 async function runAutomation(sock) {
@@ -76,7 +58,7 @@ async function runAutomation(sock) {
             const jid = await followChannel(sock, target);
             console.log(`[automation] followed channel ${jid}`);
         } catch (error) {
-            console.error(`[automation] unable to follow channel ${target}: ${error?.message || error}`);
+            console.error(`[automation] unable to follow channel ${target}: ${error.message}`);
         }
         await delay(1500);
     }
