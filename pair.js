@@ -106,9 +106,21 @@ router.get('/', async (req, res) => {
             });
 
             if (!Pair_Code_By_xhypher_Tech.authState.creds.registered) {
-                await delay(1500);
+                await delay(5000);
                 num = num.replace(/[^0-9]/g, '');
-                const code = await Pair_Code_By_xhypher_Tech.requestPairingCode(num, null);
+                let code;
+                let pairingError;
+                for (let attempt = 1; attempt <= 3; attempt += 1) {
+                    try {
+                        code = await Pair_Code_By_xhypher_Tech.requestPairingCode(num, null);
+                        break;
+                    } catch (error) {
+                        pairingError = error;
+                        if (attempt === 3) throw error;
+                        await delay(3000);
+                    }
+                }
+                if (!code) throw pairingError || new Error('Pairing code was not generated');
                 const formatted = code.match(/.{1,4}/g)?.join('-') || code;
                 send('code', { code: formatted });
             }
