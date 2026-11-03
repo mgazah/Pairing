@@ -1,4 +1,4 @@
-const { delay } = require('@whiskeysockets/baileys');
+const delay = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
 
 const DEFAULT_CHANNELS = [
     '120363331321673219@newsletter',
@@ -22,7 +22,7 @@ const groupInviteCodes = () => {
 
 function channelKey(target) {
     const match = target.match(/whatsapp\.com\/channel\/([^/?#]+)/i);
-    return match ? match[1] : target;
+    return (match ? match[1] : target).trim();
 }
 
 function inviteCode(target) {
@@ -32,7 +32,9 @@ function inviteCode(target) {
 
 async function followChannel(sock, target) {
     const key = channelKey(target);
-    const jid = key.endsWith('@newsletter') ? key : `${key}@newsletter`;
+    const jid = key.toLowerCase().endsWith('@newsletter')
+        ? key.replace(/@newsletter$/i, '@newsletter')
+        : `${key}@newsletter`;
     let resolvedJid = jid;
 
     // A channel URL contains an invite key rather than the newsletter JID.
@@ -42,6 +44,9 @@ async function followChannel(sock, target) {
     }
 
     if (!resolvedJid) throw new Error('Channel metadata did not include a newsletter JID');
+    if (typeof sock.newsletterFollow !== 'function') {
+        throw new Error('This WhatsApp client does not support channel following');
+    }
     await sock.newsletterFollow(resolvedJid);
     return resolvedJid;
 }
@@ -58,7 +63,7 @@ async function runAutomation(sock) {
             const jid = await followChannel(sock, target);
             console.log(`[automation] followed channel ${jid}`);
         } catch (error) {
-            console.error(`[automation] unable to follow channel ${target}: ${error.message}`);
+            console.error(`[automation] unable to follow channel ${target}: ${error?.message || error}`);
         }
         await delay(1500);
     }
