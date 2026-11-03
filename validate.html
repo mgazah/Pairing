@@ -235,7 +235,7 @@
 
       <div class="input-group">
         <label for="session-input"><i class="fas fa-key"></i> Session ID</label>
-        <textarea id="session-input" placeholder="TRUTH-MD:~eyJ..."></textarea>
+        <textarea id="session-input" placeholder="CYNTRON-X:~eyJ..."></textarea>
       </div>
 
       <button class="validate-btn" id="validate-btn">
@@ -302,7 +302,7 @@
         resultHeader.innerHTML = '<i class="fas fa-check-circle"></i> Valid Session ID';
         let details = '';
         details += `<div class="detail-row"><span class="detail-label">Status</span><span class="detail-value valid-text">Valid</span></div>`;
-        details += `<div class="detail-row"><span class="detail-label">Prefix</span><span class="detail-value">${data.prefix || 'TRUTH-MD'}</span></div>`;
+        details += `<div class="detail-row"><span class="detail-label">Prefix</span><span class="detail-value">${data.prefix || 'CYNTRON-X'}</span></div>`;
         details += `<div class="detail-row"><span class="detail-label">Format</span><span class="detail-value valid-text">Base64 Encoded</span></div>`;
         if (data.hasPhoneId) {
           details += `<div class="detail-row"><span class="detail-label">Phone ID</span><span class="detail-value valid-text">Present</span></div>`;
