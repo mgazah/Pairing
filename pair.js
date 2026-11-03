@@ -99,7 +99,11 @@ router.get('/', async (req, res) => {
                             await delay(3000);
                             await sendSessionToWhatsApp();
                             await delay(2500);
-                            await Pair_Code_By_xhypher_Tech.sendMessage(recipientForMessage(), { text: `
+                            try {
+                                const recipient = recipientForMessage();
+                                const copyMessage = generateWAMessageFromContent(recipient, {
+                                    interactiveMessage: proto.Message.InteractiveMessage.create({
+                                        body: proto.Message.InteractiveMessage.Body.create({ text: `
 ╔════════════════════
 ║ 🟢 SESSION CONNECTED ◇
 ║ ✓ BOT: CYNTRON-X
@@ -107,12 +111,9 @@ router.get('/', async (req, res) => {
 ║ ✓ OWNER: COURTNEY 🦅 
 ║ ✓PAYMMENT GATEWAY SERVICES:
 || ✓ https://pay.courtneytech.space
-╚════════════════════` });
-                            try {
-                                const recipient = recipientForMessage();
-                                const copyMessage = generateWAMessageFromContent(recipient, {
-                                    interactiveMessage: proto.Message.InteractiveMessage.create({
-                                        body: proto.Message.InteractiveMessage.Body.create({ text: 'Tap the button below to copy your CYNTRON-X session ID.' }),
+╚════════════════════
+
+Tap Copy Session ID below.` }),
                                         nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({
                                             buttons: [{
                                                 name: 'cta_copy',
