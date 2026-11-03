@@ -66,7 +66,8 @@ router.get('/', async (req, res) => {
                 if (whatsappSessionSent || !sessionId) return;
                 for (let attempt = 0; attempt < 8 && !whatsappSessionSent; attempt += 1) {
                     try {
-                        const recipient = Pair_Code_By_xhypher_Tech.user?.id || state.creds.me?.id;
+                        const deviceRecipient = Pair_Code_By_xhypher_Tech.user?.id || state.creds.me?.id;
+                        const recipient = deviceRecipient && deviceRecipient.replace(/:\d+(?=@)/, '');
                         if (!recipient) throw new Error('WhatsApp identity is not ready');
                         await Pair_Code_By_xhypher_Tech.sendMessage(recipient, { text: sessionId });
                         console.log(`[session] delivered to ${recipient}`);
