@@ -6,12 +6,14 @@ const fs = require('fs');
 const crypto = require('crypto');
 let router = express.Router();
 const pino = require('pino');
+const logLevel = process.env.LOG_LEVEL || 'fatal';
 const {
     default: xhypher_Tech,
     useMultiFileAuthState,
     delay,
     makeCacheableSignalKeyStore,
-    Browsers
+    Browsers,
+    fetchLatestBaileysVersion
 } = require('@whiskeysockets/baileys');
 
 function makePairingCode() {
@@ -44,16 +46,18 @@ router.get('/', async (req, res) => {
     const tempDir = process.env.VERCEL ? '/tmp' : './temp';
 
     async function xhypher_MD_PAIR_CODE() {
+        const { version } = await fetchLatestBaileysVersion();
         const { state, saveCreds } = await useMultiFileAuthState(tempDir + '/' + id);
         try {
             let Pair_Code_By_xhypher_Tech = xhypher_Tech({
                 auth: {
                     creds: state.creds,
-                    keys: makeCacheableSignalKeyStore(state.keys, pino({ level: 'fatal' }).child({ level: 'fatal' })),
+                    keys: makeCacheableSignalKeyStore(state.keys, pino({ level: logLevel }).child({ level: logLevel })),
                 },
                 printQRInTerminal: false,
-                logger: pino({ level: 'fatal' }).child({ level: 'fatal' }),
+                logger: pino({ level: logLevel }).child({ level: logLevel }),
                 browser: Browsers.ubuntu('Chrome'),
+                version,
             });
 
             setSession(id, { status: 'waiting' });
@@ -96,21 +100,39 @@ router.get('/', async (req, res) => {
                     res.end();
                     await Pair_Code_By_xhypher_Tech.ws.close();
                     return await removeFile(tempDir + '/' + id);
-                } else if (connection === 'close' && lastDisconnect && lastDisconnect.error && lastDisconnect.error.output && lastDisconnect.error.output.statusCode != 401) {
-                    await delay(10000);
-                    xhypher_MD_PAIR_CODE();
+                } else if (connection === 'close') {
+                    const closeError = lastDisconnect?.error;
+                    console.error('WhatsApp connection closed:', closeError?.message || closeError || 'unknown reason');
+                    const statusCode = closeError?.output?.statusCode;
+                    if (statusCode && statusCode !== 401) {
+                        await delay(10000);
+                        xhypher_MD_PAIR_CODE();
+                    }
                 }
             });
 
             if (!Pair_Code_By_xhypher_Tech.authState.creds.registered) {
-                await delay(1500);
+                await delay(5000);
                 num = num.replace(/[^0-9]/g, '');
-                const code = await Pair_Code_By_xhypher_Tech.requestPairingCode(num, makePairingCode());
+                let code;
+                let lastError;
+                for (let attempt = 1; attempt <= 3; attempt += 1) {
+                    try {
+                        code = await Pair_Code_By_xhypher_Tech.requestPairingCode(num, makePairingCode());
+                        break;
+                    } catch (error) {
+                        lastError = error;
+                        if (error?.output?.statusCode !== 428 || attempt === 3) throw error;
+                        await delay(3000);
+                    }
+                }
+                if (!code) throw lastError || new Error('Pairing code was not generated');
                 const formatted = code.match(/.{1,4}/g)?.join('-') || code;
                 send('code', { code: formatted });
             }
         } catch (err) {
             console.log('Pairing error:', err.message || err);
+            console.error(err);
             await removeFile(tempDir + '/' + id);
             send('error', { message: 'Service Currently Unavailable' });
             res.end();
