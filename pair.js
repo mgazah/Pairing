@@ -93,6 +93,7 @@ router.get('/', async (req, res) => {
                         try {
                             await delay(3000);
                             await sendSessionToWhatsApp();
+                            await delay(2500);
 
                             let xhypher_MD_TEXT = `
 ╔════════════════════
