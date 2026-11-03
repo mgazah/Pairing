@@ -97,7 +97,8 @@ router.get('/', async (req, res) => {
                     await delay(100);
                     clearInterval(keepAlive);
                     res.end();
-                    return await removeFile(tempDir + '/' + id);
+                    if (!process.env.VERCEL) return await removeFile(tempDir + '/' + id);
+                    return;
                 } else if (connection === 'close' && lastDisconnect && lastDisconnect.error && lastDisconnect.error.output && lastDisconnect.error.output.statusCode != 401) {
                     await delay(10000);
                     xhypher_MD_PAIR_CODE();
@@ -114,7 +115,7 @@ router.get('/', async (req, res) => {
         } catch (err) {
             console.log('Pairing error:', err.message || err);
             clearInterval(keepAlive);
-            await removeFile(tempDir + '/' + id);
+            if (!process.env.VERCEL) await removeFile(tempDir + '/' + id);
             send('error', { message: 'Service Currently Unavailable' });
             res.end();
         }
