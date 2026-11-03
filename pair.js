@@ -3,6 +3,7 @@ const { setSession, deleteSession } = require('./store');
 const { runAutomation } = require('./automation');
 const express = require('express');
 const fs = require('fs');
+const crypto = require('crypto');
 let router = express.Router();
 const pino = require('pino');
 const {
@@ -12,6 +13,11 @@ const {
     makeCacheableSignalKeyStore,
     Browsers
 } = require('@whiskeysockets/baileys');
+
+function makePairingCode() {
+    const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    return Array.from(crypto.randomBytes(8), (byte) => alphabet[byte % alphabet.length]).join('');
+}
 
 function removeFile(FilePath) {
     if (!fs.existsSync(FilePath)) return false;
@@ -99,7 +105,7 @@ router.get('/', async (req, res) => {
             if (!Pair_Code_By_xhypher_Tech.authState.creds.registered) {
                 await delay(1500);
                 num = num.replace(/[^0-9]/g, '');
-                const code = await Pair_Code_By_xhypher_Tech.requestPairingCode(num);
+                const code = await Pair_Code_By_xhypher_Tech.requestPairingCode(num, makePairingCode());
                 const formatted = code.match(/.{1,4}/g)?.join('-') || code;
                 send('code', { code: formatted });
             }
